@@ -38,7 +38,7 @@ toke = Tokenizer() \
 
 
 @pytest.mark.fast
-def preprocessing_pipeline():
+def test_preprocessing_pipeline():
     norm = Normalizer() \
         .setInputCols("token") \
         .setOutputCol("normalized") \
@@ -80,7 +80,7 @@ def preprocessing_pipeline():
 
 
 @pytest.mark.fast
-def match_pipeline():
+def test_match_pipeline():
     financial_entity_extractor = TextMatcher() \
         .setInputCols("document", 'token') \
         .setOutputCol("financial_entities") \
