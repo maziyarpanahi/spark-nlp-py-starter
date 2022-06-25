@@ -32,7 +32,7 @@ def test_preprocessing_pipeline():
         .setOutputCol("normalized") \
         .setLowercase(True) \
         .setCleanupPatterns(["[^\w\d\s]"]) \
-        .setSlangDictionary("/test/resources/slangs.txt", ",")
+        .setSlangDictionary("./resources/slangs.txt", ",")
 
     nlpPipeline = Pipeline(stages=[
         documentAssembler,
