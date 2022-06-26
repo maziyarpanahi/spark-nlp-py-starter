@@ -190,6 +190,6 @@ def test_yake_extraction():
 
     yake_Model = yake_pipeline.fit(empty_df)
     light_model = LightPipeline(yake_Model)
-    light_model.fullAnnotate(text)
+    light_model.fullAnnotate(long_text)
 
     assert True
