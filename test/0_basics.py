@@ -12,8 +12,6 @@ text_list = ['Peter Parker is a nice guy and lives in New York.',
 
 df = spark.createDataFrame(text_list, StringType()).toDF("text")
 
-# write the target entities to txt file
-
 entities = ['Wall Street', 'USD', 'stock', 'NYSE']
 with open('./resources/financial_entities.txt', 'w') as f:
     for i in entities:
@@ -57,6 +55,10 @@ def test_preprocessing_pipeline():
         .setOutputCol("lemma") \
         .setDictionary("./resources/AntBNC_lemmas_ver_001.txt", value_delimiter="\t", key_delimiter="->")
 
+    pos_tagger = PerceptronModel.pretrained() \
+        .setInputCols("document", "token") \
+        .setOutputCol("pos")
+
     ngrams_cum = NGramGenerator() \
         .setInputCols("token") \
         .setOutputCol("ngrams") \
@@ -71,6 +73,7 @@ def test_preprocessing_pipeline():
         norm,
         stopwords_cleaner,
         lemmatizer,
+        pos_tagger,
         ngrams_cum
     ])
 
@@ -80,29 +83,68 @@ def test_preprocessing_pipeline():
 
 
 @pytest.mark.fast
-def test_match_pipeline():
-    financial_entity_extractor = TextMatcher() \
-        .setInputCols("document", 'token') \
-        .setOutputCol("financial_entities") \
-        .setEntities("./resources/financial_entities.txt") \
-        .setCaseSensitive(False) \
-        .setEntityValue('financial_entity')
+def test_graph_extraction():
+    tokenizer = Tokenizer() \
+        .setInputCols("document") \
+        .setOutputCol("token")
 
-    sport_entity_extractor = TextMatcher() \
-        .setInputCols("document", 'token') \
-        .setOutputCol("sport_entities") \
-        .setEntities("./resources/sport_entities.txt") \
-        .setCaseSensitive(False) \
-        .setEntityValue('sport_entity')
+    word_embeddings = WordEmbeddingsModel.pretrained() \
+        .setInputCols("document", "token") \
+        .setOutputCol("embeddings")
 
-    nlpPipeline = Pipeline(stages=[
+    ner_tagger = NerDLModel.pretrained() \
+        .setInputCols("document", "token", "embeddings") \
+        .setOutputCol("ner")
+
+    # MergeEntities(True) Pos, Dependency Parser and Typed Dependency Parser features under the hood
+    graph_extraction = GraphExtraction() \
+        .setInputCols("document", "token", "ner") \
+        .setOutputCol("graph") \
+        .setRelationshipTypes(["lad-PER", "lad-LOC"]) \
+        .setMergeEntities(True)
+
+    graph_pipeline = Pipeline().setStages([
         documentAssembler,
-        sentenceDetector,
-        toke,
-        financial_entity_extractor,
-        sport_entity_extractor
-    ])
+        tokenizer,
+        word_embeddings,
+        ner_tagger,
+        graph_extraction])
 
-    pipelineModel = nlpPipeline.fit(df)
-    pipelineModel.transform(df).collect()
+    # The result dataset has a graph column with the paths between prefer,LOC relationship
+    graph_data_set = graph_pipeline.fit(df).transform(df)
+    graph_data_set.select("graph").collect()
+
+    assert True
+
+
+@pytest.mark.fast
+def test_dep_parsers():
+    tokenizer = Tokenizer() \
+        .setInputCols("document") \
+        .setOutputCol("token")
+
+    pos_tagger = PerceptronModel.pretrained() \
+        .setInputCols("document", "token") \
+        .setOutputCol("pos")
+
+    dep_parser = DependencyParserModel.pretrained() \
+        .setInputCols("document", "pos", "token") \
+        .setOutputCol("dependency")
+
+    typed_dep_parser = TypedDependencyParserModel.pretrained() \
+        .setInputCols("token", "pos", "dependency") \
+        .setOutputCol("dependency_type")
+
+    dep_parser_pipeline = Pipeline(stages=[
+        documentAssembler,
+        tokenizer,
+        pos_tagger,
+        dep_parser,
+        typed_dep_parser])
+
+    pipeline_model = dep_parser_pipeline.fit(df)
+    pipeline_model.transform(df).collect()
+    light_model = LightPipeline(pipeline_model)
+    light_model.annotate(text_list)
+
     assert True
