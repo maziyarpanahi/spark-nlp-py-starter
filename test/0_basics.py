@@ -174,6 +174,8 @@ def test_dep_parsers():
 
 @pytest.mark.fast
 def test_yake_extraction():
+    stopwords = StopWordsCleaner().getStopWords()
+
     keywords = YakeKeywordExtraction() \
         .setInputCols("token") \
         .setOutputCol("keywords") \
