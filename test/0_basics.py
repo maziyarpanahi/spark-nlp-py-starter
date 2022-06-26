@@ -172,6 +172,7 @@ def test_dep_parsers():
     assert True
 
 
+@pytest.mark.fast
 def test_yake_extraction():
     keywords = YakeKeywordExtraction() \
         .setInputCols("token") \
