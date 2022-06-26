@@ -82,7 +82,7 @@ def test_preprocessing_pipeline():
     assert True
 
 
-@pytest.mark.fast
+@pytest.mark.slow
 def test_graph_extraction():
     tokenizer = Tokenizer() \
         .setInputCols("document") \
