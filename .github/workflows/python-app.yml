@@ -16,7 +16,9 @@ jobs:
   build:
     strategy:
       matrix:
-        version: [ 3.0.*, 3.1.*, 3.2.* , 3.3.* ]
+        pyspark_version: [ 3.0.*, 3.1.*, 3.2.* , 3.3.* ]
+        sparknlp_version: [ 3.4.3, 3.4.4, 4.0.1 ]
+
 
     runs-on: ubuntu-latest
 
@@ -29,8 +31,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest pyspark==${{ matrix.version }} spark-nlp numpy
-    - name: Test Spark NLP on PySpark ${{ matrix.version }}
+        pip install pytest pyspark==${{ matrix.pyspark_version }} spark-nlp==${{ matrix.sparknlp_version }} numpy
+    - name: Test Spark NLP ${{ matrix.sparknlp_version }} on PySpark ${{ matrix.pyspark_version }}
       run: |
         cd test
         python -m pytest -v -m fast *.py
