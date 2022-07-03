@@ -137,7 +137,7 @@ def test_graph_extraction():
         .setInputCols("document", "token", "ner") \
         .setOutputCol("graph") \
         .setRelationshipTypes(["lad-PER", "lad-LOC"]) \
-        .setMergeEntities(false)
+        .setMergeEntities(False)
 
     graph_pipeline = Pipeline().setStages([
         documentAssembler,
