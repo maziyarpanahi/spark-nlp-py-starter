@@ -1,12 +1,25 @@
+import pyspark
 import pytest
 import sparknlp
 from pyspark.ml import Pipeline
 from pyspark.sql.types import StringType
 from sparknlp.annotator import *
 from sparknlp.base import *
-from sparknlp.training import CoNLL
+from sparknlp.training import *
 
-spark = sparknlp.start()
+sparknlp_version = sparknlp.version()
+pyspark_version = pyspark.__version__
+
+sparknlp_version_int = int("".join(sparknlp_version.split(".")))
+pyspark_version_int = int("".join(pyspark_version.split(".")))
+
+if sparknlp_version_int >= 400:
+    spark = sparknlp.start()
+else:
+    if pyspark_version_int >= 320:
+        spark = sparknlp.start(spark32=True)
+    else:
+        spark = sparknlp.start()
 
 text_list = ['Peter Parker is a nice guy and lives in New York.',
              'Bruce Wayne is also a nice guy and lives in Gotham City.']
@@ -105,7 +118,7 @@ def test_preprocessing_pipeline():
     assert True
 
 
-@pytest.mark.slow
+@pytest.mark.fast
 def test_graph_extraction():
     tokenizer = Tokenizer() \
         .setInputCols("document") \
@@ -124,7 +137,7 @@ def test_graph_extraction():
         .setInputCols("document", "token", "ner") \
         .setOutputCol("graph") \
         .setRelationshipTypes(["lad-PER", "lad-LOC"]) \
-        .setMergeEntities(True)
+        .setMergeEntities(false)
 
     graph_pipeline = Pipeline().setStages([
         documentAssembler,
