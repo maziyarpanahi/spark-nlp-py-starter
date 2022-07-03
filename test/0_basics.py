@@ -7,6 +7,9 @@ from sparknlp.annotator import *
 from sparknlp.base import *
 from sparknlp.training import *
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 sparknlp_version = sparknlp.version()
 pyspark_version = pyspark.__version__
 
@@ -118,7 +121,7 @@ def test_preprocessing_pipeline():
     assert True
 
 
-@pytest.mark.fast
+@pytest.mark.slow
 def test_graph_extraction():
     tokenizer = Tokenizer() \
         .setInputCols("document") \
@@ -137,7 +140,7 @@ def test_graph_extraction():
         .setInputCols("document", "token", "ner") \
         .setOutputCol("graph") \
         .setRelationshipTypes(["lad-PER", "lad-LOC"]) \
-        .setMergeEntities(False)
+        .setMergeEntities(True)
 
     graph_pipeline = Pipeline().setStages([
         documentAssembler,

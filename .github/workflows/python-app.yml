@@ -20,7 +20,7 @@ jobs:
         sparknlp_version: [ 3.4.3, 3.4.4, 4.0.1 ]
       fail-fast: false
 
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
