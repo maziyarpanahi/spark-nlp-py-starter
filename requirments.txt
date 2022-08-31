@@ -1,2 +1,2 @@
 pyspark==3.2.1
-spark-nlp==4.0.0
+spark-nlp==4.1.0
