@@ -116,7 +116,6 @@ def test_preprocessing_pipeline():
         pos_tagger,
         ngrams_cum
     ])
-
     pipelineModel = nlpPipeline.fit(df)
     pipelineModel.transform(df).collect()
     assert True
