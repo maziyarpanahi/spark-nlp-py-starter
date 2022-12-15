@@ -170,16 +170,16 @@ def test_dep_parsers():
         .setInputCols("document", "pos", "token") \
         .setOutputCol("dependency")
 
-    typed_dep_parser = TypedDependencyParserModel.pretrained() \
-        .setInputCols("token", "pos", "dependency") \
-        .setOutputCol("dependency_type")
+    # typed_dep_parser = TypedDependencyParserModel.pretrained() \
+    #     .setInputCols("document", "pos", "dependency") \
+    #     .setOutputCol("dependency_type")
 
     dep_parser_pipeline = Pipeline(stages=[
         documentAssembler,
         tokenizer,
         pos_tagger,
-        dep_parser,
-        typed_dep_parser])
+        dep_parser
+    ])
 
     pipeline_model = dep_parser_pipeline.fit(df)
     pipeline_model.transform(df).collect()
