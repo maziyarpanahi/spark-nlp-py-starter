@@ -1,3 +1,5 @@
+import os
+
 import pyspark
 import pytest
 import sparknlp
@@ -6,8 +8,7 @@ from pyspark.sql.types import StringType
 from sparknlp.annotator import *
 from sparknlp.base import *
 from sparknlp.training import *
-
-import os
+from sparknlp.pretrained import PretrainedPipeline
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
