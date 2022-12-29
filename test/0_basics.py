@@ -170,9 +170,9 @@ def test_dep_parsers():
         .setInputCols("document", "pos", "token") \
         .setOutputCol("dependency")
 
-    # typed_dep_parser = TypedDependencyParserModel.pretrained() \
-    #     .setInputCols("document", "pos", "dependency") \
-    #     .setOutputCol("dependency_type")
+    typed_dep_parser = TypedDependencyParserModel.pretrained() \
+        .setInputCols("document", "pos", "dependency") \
+        .setOutputCol("dependency_type")
 
     dep_parser_pipeline = Pipeline(stages=[
         documentAssembler,
@@ -223,3 +223,11 @@ def test_training_helpers():
 
     train_dataset = CoNLLU(lemmaCol="lemma_train").readDataset(spark, "./resources/train_small.conllu.txt")
     train_dataset.show(1)
+
+
+@pytest.mark.fast
+def test_pretrained_pipelines():
+    pipeline = PretrainedPipeline('onto_recognize_entities_bert_tiny', lang='en')
+    pipeline.fullAnnotate(long_text)
+    lp = LightPipeline(pipeline.model, parse_embeddings=True)
+    lp.annotate(long_text)
