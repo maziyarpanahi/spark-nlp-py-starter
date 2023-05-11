@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest pyspark==3.3.1 spark-nlp numpy
+        pip install pytest pyspark==3.3.1 spark-nlp==4.4.1 numpy
     - name: Test the latest Spark NLP on latest PySpark
       run: |
         cd test
